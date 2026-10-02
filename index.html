@@ -174,10 +174,20 @@
   .sh-act-label span:last-child{color:var(--warm);opacity:.8}
   .acts{display:flex;gap:9px;flex-wrap:wrap}
   .act{
-    flex:1 1 0;min-width:74px;
+    flex:1 1 0;min-width:74px;position:relative;
     background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--ink);
     border-radius:16px;padding:11px 8px 9px;text-align:center;
     transition:all .28s ease;
+  }
+  /* 每个动作各自被送过多少次，直接标在按钮上 */
+  .act.has-count[data-count]:after{
+    content:attr(data-count);
+    position:absolute;top:-7px;right:-5px;min-width:19px;height:19px;
+    padding:0 5px;border-radius:100px;
+    background:linear-gradient(135deg,#ffd79a,#ff9f43);color:#41260a;
+    font-size:10.5px;font-weight:700;line-height:19px;letter-spacing:0;
+    box-shadow:0 4px 12px rgba(255,159,67,.45);
+    font-variant-numeric:tabular-nums;
   }
   .act i{display:block;font-size:21px;font-style:normal;line-height:1.35;filter:saturate(.92)}
   .act u{display:block;font-size:11.5px;text-decoration:none;color:var(--ink-dim);margin-top:3px;letter-spacing:.02em}
@@ -242,7 +252,119 @@
   #helpCard p{margin:8px 0 0;font-size:12px}
   #helpCard .hl{color:var(--mint)}
 
+  /* ---------- 鸟巢：我的投递记录 ---------- */
+  #nestSheet{
+    position:fixed;inset:0;z-index:22;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));
+    background:rgba(3,5,10,.62);
+    backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    opacity:0;pointer-events:none;transition:opacity .35s ease;
+  }
+  #nestSheet.open{opacity:1;pointer-events:auto}
+  #nestCard{
+    width:min(620px,100%);max-height:82vh;display:flex;flex-direction:column;
+    background:rgba(18,22,34,.97);
+    border:1px solid rgba(255,201,120,.20);
+    border-radius:24px;
+    box-shadow:0 30px 90px rgba(0,0,0,.7),0 0 70px rgba(255,159,67,.07);
+    transform:translateY(14px) scale(.985);
+    transition:transform .4s cubic-bezier(.22,1,.36,1);
+    overflow:hidden;
+  }
+  #nestSheet.open #nestCard{transform:none}
+  .nest-top{
+    display:flex;align-items:center;gap:12px;
+    padding:18px 20px 14px;border-bottom:1px solid rgba(255,255,255,.07);
+  }
+  .nest-top .nest-icon{
+    width:34px;height:34px;flex:0 0 auto;border-radius:50%;
+    display:grid;place-items:center;font-size:17px;
+    background:radial-gradient(circle at 50% 40%,rgba(255,208,146,.30),rgba(255,159,67,.06));
+    border:1px solid rgba(255,201,120,.28);
+  }
+  .nest-top h2{margin:0;font-size:15px;font-weight:600;letter-spacing:.06em;color:#ffdca8}
+  .nest-top p{margin:2px 0 0;font-size:11.5px;color:var(--ink-faint)}
+  #nestClose{
+    margin-left:auto;width:30px;height:30px;border-radius:50%;flex:0 0 auto;
+    border:1px solid var(--line);background:rgba(255,255,255,.05);
+    color:var(--ink-dim);font-size:15px;display:grid;place-items:center;cursor:pointer;
+  }
+  #nestClose:hover{background:rgba(255,255,255,.13);color:#fff}
+  #nestSum{
+    margin:0;padding:14px 20px 12px;font-size:12.5px;line-height:1.85;color:var(--ink-dim);
+    background:rgba(255,201,120,.045);border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  #nestSum b{color:var(--warm);font-weight:600;font-variant-numeric:tabular-nums}
+  #nestSum .nest-split{color:#ffdca8;letter-spacing:.02em}
+  #nestSum .nest-fly{color:var(--ink-faint)}
+  .nest-tools{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:11px 20px;border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .nest-tools input{
+    flex:1 1 150px;min-width:0;padding:7px 12px;border-radius:100px;
+    border:1px solid var(--line);background:rgba(255,255,255,.045);
+    color:var(--ink);font:inherit;font-size:12.5px;outline:none;
+  }
+  .nest-tools input:focus{border-color:rgba(255,201,120,.4);background:rgba(255,255,255,.07)}
+  .nest-tools input::placeholder{color:#6e7290}
+  .nest-sort{
+    padding:6px 12px;border-radius:100px;font-size:11.5px;cursor:pointer;
+    border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink-dim);
+    transition:all .22s ease;
+  }
+  .nest-sort:hover{color:var(--ink);border-color:rgba(255,201,120,.3)}
+  .nest-sort.on{color:#41260a;background:linear-gradient(135deg,#ffd79a,#ff9f43);border-color:transparent;font-weight:600}
+  #nestCount{margin-left:auto;font-size:11.5px;color:var(--ink-faint);white-space:nowrap}
+  #nestList{overflow-y:auto;padding:6px 14px 14px;-webkit-overflow-scrolling:touch}
+  .nest-item{
+    position:relative;margin:10px 0;padding:13px 15px 11px;
+    border-radius:16px;border:1px solid rgba(255,255,255,.08);
+    background:rgba(255,255,255,.035);
+  }
+  .nest-item.is-flying{border-color:rgba(255,201,120,.30);background:rgba(255,201,120,.06)}
+  .nest-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+  .nest-when{font-size:11px;color:var(--ink-faint)}
+  .nest-acts{
+    margin-left:auto;font-size:12px;color:#ffdca8;
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+  .nest-text{margin:0;font-size:13.5px;line-height:1.8;color:#e6e3f2;word-break:break-word;white-space:pre-wrap}
+  .nest-foot{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .nest-status{font-size:11px;color:var(--ink-faint)}
+  .nest-status:before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;
+                     margin-right:6px;vertical-align:1px;background:var(--ink-faint)}
+  .nest-item.is-flying .nest-status{color:var(--warm)}
+  .nest-item.is-flying .nest-status:before{background:var(--warm);box-shadow:0 0 8px rgba(255,201,120,.9)}
+  .nest-find{
+    margin-left:auto;padding:6px 14px;border-radius:100px;font-size:11.5px;cursor:pointer;
+    border:1px solid rgba(255,201,120,.32);background:rgba(255,201,120,.10);
+    color:#ffdca8;transition:all .22s ease;
+  }
+  .nest-find:hover:not(:disabled){background:rgba(255,201,120,.20)}
+  .nest-find:disabled{opacity:.4;cursor:default;border-color:var(--line);background:transparent;color:var(--ink-faint)}
+  .nest-empty{margin:14px 4px;font-size:12.5px;line-height:1.85;color:var(--ink-faint)}
+  #nestBtn{
+    position:fixed;z-index:11;right:14px;bottom:calc(134px + env(safe-area-inset-bottom,0px));
+    display:flex;align-items:center;gap:6px;
+    border:1px solid var(--line);background:rgba(14,18,32,.62);
+    color:var(--ink-dim);border-radius:100px;padding:5px 12px 5px 9px;
+    font-size:11.5px;letter-spacing:.04em;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    transition:all .28s ease;box-shadow:0 8px 24px rgba(0,0,0,.35);
+  }
+  #nestBtn i{font-style:normal;font-size:13px;line-height:1}
+  #nestBtn:hover{color:var(--ink);border-color:rgba(255,201,120,.34);background:rgba(20,25,42,.8)}
+  #nestBtn.has-own{color:#ffdca8;border-color:rgba(255,201,120,.34)}
+
   @media (max-width:560px){
+    #nestCard{border-radius:20px;max-height:86vh}
+    .nest-top{padding:15px 16px 12px}
+    #nestSum{padding:12px 16px 10px}
+    .nest-tools{padding:10px 16px}
+    #nestCount{display:none}
+  }
     #hud{align-items:flex-start;text-align:left;padding:18px 18px 22px}
     #hud p{font-size:12px}
     #hollowHint .cnt{min-width:46px}
@@ -326,8 +448,31 @@
   </div>
 </div>
 
+<button id="nestBtn" aria-label="我的投递记录"><i>🪹</i><span>我的心事</span></button>
 <button id="seasonBtn" aria-label="切换季节"><i>❄</i><span>冬天的秃枝</span></button>
 <button id="weatherBtn" aria-label="切换天气"><i>🌙</i><span>今夜无雨</span></button>
+<div id="nestSheet" aria-hidden="true">
+  <div id="nestCard" role="dialog" aria-modal="true" aria-labelledby="nestTitle">
+    <div class="nest-top">
+      <div class="nest-icon">🪹</div>
+      <div>
+        <h2 id="nestTitle">我的心事 · 树上的鸟巢</h2>
+        <p>投进树洞的心事，都在这里留了一份记录</p>
+      </div>
+      <button id="nestClose" aria-label="关闭">✕</button>
+    </div>
+    <p id="nestSum"></p>
+    <div class="nest-tools">
+      <input id="nestQuery" type="text" placeholder="搜一下你写过的那句话…" maxlength="60" />
+      <button class="nest-sort on" id="nestSortTime" data-sort="time" type="button">最新</button>
+      <button class="nest-sort" id="nestSortCare" data-sort="care" type="button">最受关心</button>
+      <button class="nest-sort" id="nestSortOld" data-sort="old" type="button">最早</button>
+      <span id="nestCount"></span>
+    </div>
+    <div id="nestList"></div>
+  </div>
+</div>
+
 <button id="helpBtn" aria-label="需要更多帮助">?</button>
 <div id="helpCard">
   <b>一个小提醒</b>
@@ -674,6 +819,71 @@
   var queue = [];     // 用户刚投递、等待“第二次出生”的心事
   var seenIntro = false;
 
+  /* ---------------------------------------------------------
+     安慰动作是分开计数的：抱抱、摸头、我懂、陪你一会儿各算各的。
+     老数据里只有 hugs 一个总数，载入时按内容哈希确定性地拆成四项，
+     所以升级后不会丢数字，也不会每次都变。
+     --------------------------------------------------------- */
+  var ACT_KEYS = ['hug', 'pat', 'same', 'stay'];
+  var ACT_META = {
+    hug: { label: '抱抱', icon: '🫂' },
+    pat: { label: '摸头', icon: '🤍' },
+    same: { label: '我懂', icon: '✨' },
+    stay: { label: '陪你', icon: '🌙' }
+  };
+
+  function emptyActs() { return { hug: 0, pat: 0, same: 0, stay: 0 }; }
+
+  function actsOf(m) {
+    // 没有明细时，从 hugs 迁移出明细（而不是补一个全 0 的空对象，
+    // 那样会把老数据里的数字直接抹掉）
+    if (!m.acts) splitLegacy(m);
+    var i;
+    for (i = 0; i < ACT_KEYS.length; i++) {
+      var k = ACT_KEYS[i];
+      if (typeof m.acts[k] !== 'number' || !isFinite(m.acts[k]) || m.acts[k] < 0) m.acts[k] = 0;
+    }
+    return m.acts;
+  }
+
+  function totalActs(m) {
+    var a = actsOf(m), i, n = 0;
+    for (i = 0; i < ACT_KEYS.length; i++) n += a[ACT_KEYS[i]];
+    return n;
+  }
+
+  /* 把只有一个总数的老心事拆成四种动作。
+     总数以四项之和为准，保证 hugs 与明细永远对得上。
+     注意：先算好再赋值，别让"读 hugs"和"写 hugs"互相干扰。 */
+  function splitLegacy(m) {
+    var total = (typeof m.hugs === 'number' && isFinite(m.hugs)) ? m.hugs : 0;
+    var out = emptyActs();
+    var i;
+    if (total > 0) {
+      var r = mulberry32(hashStr(String(m.t) + '|' + (m.ts || 0)));
+      var left = total;
+      for (i = 0; i < ACT_KEYS.length - 1; i++) {
+        var take = Math.floor(left * (0.10 + r() * 0.38));
+        if (take > left) take = left;
+        if (take < 0) take = 0;
+        out[ACT_KEYS[i]] = take;
+        left -= take;
+      }
+      out[ACT_KEYS[ACT_KEYS.length - 1]] = left;
+    }
+    var sum = 0;
+    for (i = 0; i < ACT_KEYS.length; i++) sum += out[ACT_KEYS[i]];
+    m.acts = out;
+    m.hugs = sum;
+    return m;
+  }
+
+  function ensureActs(m) {
+    if (!m.acts) splitLegacy(m);
+    else m.hugs = totalActs(m);
+    return m;
+  }
+
   function load() {
     var raw = null;
     try { raw = window.localStorage.getItem(STORE_KEY); } catch (e) { raw = null; }
@@ -681,18 +891,25 @@
     if (raw) { try { d = JSON.parse(raw); } catch (e2) { d = null; } }
     if (d && Array.isArray(d.history)) {
       history = d.history.filter(function (m) { return m && typeof m.t === 'string' && m.t.trim(); });
+      var i;
+      for (i = 0; i < history.length; i++) ensureActs(history[i]);
+      dedupeHistory();
       stats.sent = d.sent | 0;
-      stats.received = d.received | 0;
+      stats.received = 0;
+      for (i = 0; i < history.length; i++) stats.received += totalActs(history[i]);
       seenIntro = !!d.seenIntro;
       return;
     }
     // 首次进入：铺一些别人的心事，让夜空不是空的
-    var now = Date.now(), i;
-    for (i = 0; i < SEED.length; i++) {
-      history.push({ t: SEED[i].t, ts: now - SEED[i].ts, hugs: SEED[i].hugs, self: 0 });
+    var now = Date.now(), j;
+    for (j = 0; j < SEED.length; j++) {
+      var m = { t: SEED[j].t, ts: now - SEED[j].ts, hugs: SEED[j].hugs, self: 0 };
+      splitLegacy(m);
+      history.push(m);
     }
     stats.sent = 0;
-    stats.received = history.reduce(function (a, m) { return a + (m.hugs || 0); }, 0);
+    stats.received = 0;
+    for (j = 0; j < history.length; j++) stats.received += totalActs(history[j]);
   }
 
   var saveTimer = 0;
@@ -918,6 +1135,7 @@
     }
 
     if (f.heartbeat > 0) f.heartbeat = Math.max(0, f.heartbeat - dt * 0.55);
+    if (f.spotlight > 0) f.spotlight = Math.max(0, f.spotlight - dt);
   }
 
   /* =========================================================
@@ -1829,6 +2047,189 @@
     ctx.closePath();
   }
 
+  /* =========================================================
+     鸟巢：树上留给"我自己"的那个角落。
+     树洞负责"投出去、放下"，鸟巢负责"攒起来、回看"——
+     心事投进树洞之后，会在这里留一份记录，你能回来看它被关心了多少次。
+     ========================================================= */
+  var nest = { x: 0, y: 0, rx: 0, ry: 0, has: false };
+
+  function placeNest() {
+    var best = null, i;
+    // 挑一根"够粗、朝左、位置合适"的枝，做鸟巢的落脚点
+    for (i = 0; i < tree.branches.length; i++) {
+      var b = tree.branches[i];
+      if (b.depth !== 1 || b.r1 < 3) continue;
+      var p = b.pts[Math.round(b.pts.length * 0.6)];
+      if (!p) continue;
+      if (p.x > hollow.x + W * 0.06) continue;          // 偏左
+      if (p.y > hollow.y - H * 0.02) continue;          // 在树洞上方
+      var score = b.r1 * 10 - Math.abs(p.x - (hollow.x - W * 0.11));
+      if (!best || score > best.score) best = { p: p, r: b.r1, score: score };
+    }
+    if (!best) {
+      // 兜底：万一没挑到合适的枝，就放在树洞左上方
+      best = { p: { x: hollow.x - W * 0.10, y: hollow.y - H * 0.10, r: 6 }, r: 6 };
+    }
+    nest.x = best.p.x;
+    nest.y = best.p.y + best.p.r * 0.9;
+    nest.rx = clamp(best.r * 3.4, 26, 62);
+    nest.ry = nest.rx * 0.52;
+    // 巢是歪的，看起来才像自己搭的
+    nest.tilt = (nest.x < W * 0.5 ? -1 : 1) * 0.07;
+    nest.has = true;
+  }
+
+  function pathAtNestScale(k) {
+    var cos = Math.cos(nest.tilt || 0), sin = Math.sin(nest.tilt || 0);
+    function T(px, py) {
+      var dx = (px - nest.x) * k, dy = (py - nest.y) * k;
+      return [nest.x + dx * cos - dy * sin, nest.y + dx * sin + dy * cos];
+    }
+    return T;
+  }
+
+  function nestPath(scaleK) {
+    var T = pathAtNestScale(scaleK);
+    var rx = nest.rx, ry = nest.ry;
+    ctx.beginPath();
+    var a = T(nest.x - rx, nest.y - ry * 0.25);
+    ctx.moveTo(a[0], a[1]);
+    var c1 = T(nest.x - rx * 0.95, nest.y + ry * 1.15);
+    var c2 = T(nest.x - rx * 0.25, nest.y + ry * 1.5);
+    var p1 = T(nest.x, nest.y + ry * 1.42);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    c1 = T(nest.x + rx * 0.35, nest.y + ry * 1.32);
+    c2 = T(nest.x + rx * 1.02, nest.y + ry * 0.75);
+    p1 = T(nest.x + rx, nest.y - ry * 0.18);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    c1 = T(nest.x + rx * 0.92, nest.y - ry * 0.72);
+    c2 = T(nest.x - rx * 0.30, nest.y - ry * 0.86);
+    p1 = T(nest.x - rx, nest.y - ry * 0.25);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    ctx.closePath();
+  }
+
+  /* 巢口的黑：形状与巢身同形，缩小一点，制造"里面是空的" */
+  function nestMouthPath() {
+    var T = pathAtNestScale(0.80);
+    var rx = nest.rx, ry = nest.ry;
+    ctx.beginPath();
+    var a = T(nest.x - rx, nest.y - ry * 0.34);
+    ctx.moveTo(a[0], a[1]);
+    var c1 = T(nest.x - rx * 0.9, nest.y + ry * 0.9);
+    var c2 = T(nest.x - rx * 0.2, nest.y + ry * 1.15);
+    var p1 = T(nest.x, nest.y + ry * 1.08);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    c1 = T(nest.x + rx * 0.35, nest.y + ry * 1.0);
+    c2 = T(nest.x + rx * 0.95, nest.y + ry * 0.55);
+    p1 = T(nest.x + rx, nest.y - ry * 0.28);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    c1 = T(nest.x + rx * 0.85, nest.y - ry * 0.62);
+    c2 = T(nest.x - rx * 0.30, nest.y - ry * 0.74);
+    p1 = T(nest.x - rx, nest.y - ry * 0.34);
+    ctx.bezierCurveTo(c1[0], c1[1], c2[0], c2[1], p1[0], p1[1]);
+    ctx.closePath();
+  }
+
+  function drawNest() {
+    if (!nest.has) return;
+    var mine = ownMessages();
+    var total = 0, i;
+    for (i = 0; i < mine.length; i++) total += totalActs(mine[i]);
+    var warmth = clamp(total / 40, 0, 1);          // 收到的关心越多，巢越暖
+    var pulse = 0.5 + 0.5 * Math.sin(T * 0.7);
+    var isHover = nest.hot;
+
+    ctx.save();
+
+    // 巢后面透出的一点暖光（被关心得越多越亮）
+    ctx.globalCompositeOperation = 'lighter';
+    var gr = ctx.createRadialGradient(nest.x, nest.y, 0, nest.x, nest.y, nest.rx * 2.6);
+    gr.addColorStop(0, 'rgba(255,196,120,' + (0.05 + warmth * 0.20 + (isHover ? 0.10 : 0)) + ')');
+    gr.addColorStop(0.45, 'rgba(255,170,90,' + (0.02 + warmth * 0.06) + ')');
+    gr.addColorStop(1, 'rgba(255,150,60,0)');
+    ctx.fillStyle = gr;
+    ctx.beginPath();
+    ctx.ellipse(nest.x, nest.y, nest.rx * 2.6, nest.ry * 3.4, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+
+    // 巢身：深色枯枝色，比树干略亮一点，才看得出是个物件
+    ctx.save();
+    nestPath(1);
+    var body = ctx.createLinearGradient(nest.x, nest.y - nest.ry, nest.x, nest.y + nest.ry * 1.5);
+    body.addColorStop(0, '#2a2418');
+    body.addColorStop(0.5, '#1c1811');
+    body.addColorStop(1, '#0d0b08');
+    ctx.fillStyle = body;
+    ctx.fill();
+
+    // 巢口的黑
+    nestMouthPath();
+    ctx.fillStyle = 'rgba(4,4,7,.94)';
+    ctx.fill();
+
+    // 巢身纹理：几道横向的枯枝
+    ctx.save();
+    nestPath(1);
+    ctx.clip();
+    ctx.lineWidth = 1.2;
+    var k;
+    for (k = 0; k < 7; k++) {
+      var yy = nest.y - nest.ry * 0.5 + (k / 6) * nest.ry * 1.9;
+      ctx.beginPath();
+      ctx.moveTo(nest.x - nest.rx * 1.1, yy);
+      ctx.bezierCurveTo(nest.x - nest.rx * 0.3, yy + 3.2, nest.x + nest.rx * 0.3, yy - 3.2,
+                        nest.x + nest.rx * 1.1, yy + 1.4);
+      ctx.strokeStyle = k % 2 ? 'rgba(120,104,74,.20)' : 'rgba(70,60,42,.34)';
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // 巢沿的亮边（月光方向）
+    ctx.save();
+    nestMouthPath();
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = 'rgba(196,220,255,' + (0.16 + warmth * 0.10) + ')';
+    ctx.stroke();
+    ctx.restore();
+
+    // 巢里的三枚"心事蛋"：收到的关心越多越亮
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    var eggs = [
+      { dx: -0.34, dy: 0.30, r: 0.20 },
+      { dx: 0.10, dy: 0.42, r: 0.24 },
+      { dx: 0.46, dy: 0.22, r: 0.18 }
+    ];
+    for (k = 0; k < eggs.length; k++) {
+      var e = eggs[k];
+      var ex = nest.x + nest.rx * e.dx;
+      var ey = nest.y + nest.ry * e.dy;
+      var er = nest.rx * e.r;
+      var ea = (0.35 + warmth * 0.55) * (0.72 + 0.28 * pulse) * (mine.length ? 1 : 0.35);
+      var eg = ctx.createRadialGradient(ex, ey, 0, ex, ey, er * 3);
+      eg.addColorStop(0, 'rgba(255,236,196,' + (0.85 * ea) + ')');
+      eg.addColorStop(0.35, 'rgba(255,196,120,' + (0.35 * ea) + ')');
+      eg.addColorStop(1, 'rgba(255,160,80,0)');
+      ctx.fillStyle = eg;
+      ctx.beginPath();
+      ctx.ellipse(ex, ey, er * 3, er * 2.4, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  /* 点鸟巢用：判断点在不在巢的范围里 */
+  function pickNest(x, y) {
+    if (!nest.has) return false;
+    var dx = (x - nest.x) / (nest.rx * 1.35);
+    var dy = (y - nest.y) / (nest.ry * 2.2);
+    return dx * dx + dy * dy < 1;
+  }
+
   function drawHollow() {
     var pulse = 0.5 + 0.5 * Math.sin(T * 0.9);
     var breathe = 1 + Math.sin(T * 0.62) * 0.035;
@@ -2003,8 +2404,20 @@
       if (a <= 0.012) continue;
       var base = 23 * f.depth * (1 + f.heartbeat * 0.30);
       var size = base * (2.4 + breathe * 1.0);
+      // 从鸟巢"去看看它"跳过来的那一条：明显放大，并画一圈寻找中的光环
+      var spot = f.spotlight > 0 ? clamp(f.spotlight / 6.5, 0, 1) : 0;
+      if (spot > 0) {
+        size *= 1 + spot * 0.9;
+        var ringR = base * (2.2 + (1 - spot) * 5.5);
+        ctx.globalAlpha = 0.55 * spot;
+        ctx.strokeStyle = 'rgba(255,222,170,1)';
+        ctx.lineWidth = 2.2 * spot + 0.6;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, ringR, 0, TAU);
+        ctx.stroke();
+      }
       var sp = f.cool ? fireflySpriteCool : fireflySprite;
-      ctx.globalAlpha = clamp(a * 0.88, 0, 1);
+      ctx.globalAlpha = clamp(a * 0.88 * (1 + spot * 0.5), 0, 1);
       ctx.drawImage(sp, f.x - size / 2, f.y - size / 2, size, size);
       // 核心亮点
       ctx.globalAlpha = clamp(a * 0.95, 0, 1);
@@ -2140,7 +2553,6 @@
     { k: 'same', i: '✨', label: '我懂', line: '有人也这样过', p: 'emoji' },
     { k: 'stay', i: '🌙', label: '陪你一会儿', line: '有人陪你待了一会儿', p: 'emoji' }
   ];
-
   function pickFly(x, y) {
     var best = null, bestD = 1e9, i, f;
     for (i = 0; i < flies.length; i++) {
@@ -2185,33 +2597,49 @@
     f.heartbeat = Math.max(f.heartbeat, 0.7);
     ripple(f.x, f.y, 0.6);
 
-    // 它被你看见了，也算一次温柔的相遇
-    if (!m._seen) {
-      m._seen = true;
-      m.hugs = (m.hugs || 0) + 0;   // 看见不等于抱抱，不计数
-    }
+    // 它被你看见了，也算一次温柔的相遇（看见不等于送安慰，不计数）
+    m._seen = true;
     save();
   }
 
+  /* 四种安慰分别显示：有数字的显示数字，一个都没有时给一句诚实的话 */
   function renderHugs(m) {
-    var h = m.hugs || 0;
-    $('hugCount').textContent = h > 0 ? ('已经被抱过 ' + h + ' 次') : '它还没被抱过';
+    var a = actsOf(m);
+    var parts = [], i;
+    for (i = 0; i < ACT_KEYS.length; i++) {
+      var k = ACT_KEYS[i];
+      if (a[k] > 0) parts.push(ACT_META[k].icon + ' ' + a[k]);
+    }
+    $('hugCount').textContent = parts.length ? parts.join('　') : '还没有人被安慰过它';
   }
 
-  function renderActions() {
+  /* 每个动作按钮上直接标出它被送过多少次 */
+  function renderActions(m) {
     var wrap = $('acts');
     wrap.innerHTML = '';
+    var a = m ? actsOf(m) : null;
     var i;
     for (i = 0; i < ACTIONS.length; i++) {
-      (function (a) {
+      (function (act) {
         var b = document.createElement('button');
+        var n = a ? a[act.k] : 0;
+        // data-count 一直存在（便于读取），默认写 0 并把徽标屏蔽掉
         b.className = 'act';
         b.type = 'button';
-        b.innerHTML = '<i>' + a.i + '</i><u>' + a.label + '</u>';
-        b.addEventListener('click', function () { sendComfort(a, b); });
+        b.setAttribute('data-count', String(n));
+        setActBadge(b, n);
+        b.innerHTML = '<i>' + act.i + '</i><u>' + act.label + '</u>';
+        b.addEventListener('click', function () { sendComfort(act, b); });
         wrap.appendChild(b);
       })(ACTIONS[i]);
     }
+  }
+
+  /* 按钮上的计数徽标：有数字才显示 */
+  function setActBadge(btn, n) {
+    btn.setAttribute('data-count', String(n));
+    if (n > 0) btn.classList.add('has-count');
+    else btn.classList.remove('has-count');
   }
 
   function sendComfort(a, btn) {
@@ -2221,14 +2649,18 @@
     openSession[a.k] = true;
     btn.classList.add('sent');
 
-    m.hugs = (m.hugs || 0) + 1;
+    // 只给这一个动作加一，并刷新它自己的徽标
+    var acts = actsOf(m);
+    acts[a.k] += 1;
+    m.hugs = totalActs(m);
+    setActBadge(btn, acts[a.k]);
     stats.sent += 1;
     openFly.heartbeat = 1.6;
     comfortBurst(openFly.x, openFly.y, a.p === 'hug' ? '🫂' : 'emoji', a.k);
     bloom(a.line, openFly.x, openFly.y - 24, 'rgba(255,222,170,.95)');
     renderHugs(m);
     save();
-    toast(a.line + '，它会知道的。');
+    toast(a.line + '，它会知道的。现在是 ' + ACT_META[a.k].label + ' ' + acts[a.k] + ' 次。');
   }
 
   function closeSheet() {
@@ -2239,15 +2671,298 @@
   }
 
   /* =========================================================
+     我投过的心事：鸟巢里攒着的那一份记录。
+     每条心事有一个稳定的 key（内容哈希），所以即使它还在夜空里飞、
+     数字在变，也能在列表里被认出来。
+     ========================================================= */
+  function msgKey(m) {
+    // 带一个创建时生成的短标识：同一条心事每次都是同一个 key，
+    // 但"同一毫秒投了两句一样的话"不会被误判成重复。
+    return hashStr(String(m.t) + '|' + (m.ts || 0) + '|' + (m.n || '')).toString(36);
+  }
+
+  function ownMessages() {
+    var out = [], i;
+    for (i = 0; i < history.length; i++) {
+      var m = history[i];
+      if (m && m.self) { ensureActs(m); out.push(m); }
+    }
+    return out;
+  }
+
+  /* 去掉重复的心事：同一条内容 + 同一时间戳只保留一条，
+     否则"我投过几条"会虚高，鸟巢里也会出现一模一样的卡片。
+     如果重复项之间计数不同，取合计更高的那一条，避免丢数字。 */
+  function dedupeHistory() {
+    var seen = {}, out = [], dropped = 0, i;
+    for (i = 0; i < history.length; i++) {
+      var m = history[i];
+      if (!m) continue;
+      ensureActs(m);
+      var k = msgKey(m);
+      if (!seen[k]) { seen[k] = m; out.push(m); continue; }
+      dropped++;
+      var keep = seen[k];
+      if (totalActs(m) > totalActs(keep)) {
+        keep.acts = m.acts;
+        keep.hugs = m.hugs;
+        if (m._flying) keep._flying = true;
+      }
+    }
+    if (dropped) history = out;
+    return dropped;
+  }
+
+  function ownSummary() {
+    var mine = ownMessages(), i;
+    var s = { count: mine.length, total: 0, acts: emptyActs(), best: null, first: null };
+    for (i = 0; i < mine.length; i++) {
+      var a = actsOf(mine[i]), k;
+      var got = 0;
+      for (k = 0; k < ACT_KEYS.length; k++) { s.acts[ACT_KEYS[k]] += a[ACT_KEYS[k]]; got += a[ACT_KEYS[k]]; }
+      s.total += got;
+      if (!s.best || got > totalActs(s.best)) s.best = mine[i];
+      if (!s.first || (mine[i].ts || 0) < (s.first.ts || 0)) s.first = mine[i];
+    }
+    return s;
+  }
+
+  /* 每只萤火虫身上带的心事，是否是我的 */
+  function flyingMine() {
+    var map = {}, i;
+    for (i = 0; i < flies.length; i++) {
+      var f = flies[i];
+      if (f.dead || !f.msg || !f.msg.self) continue;
+      if (f.state === 'absorb') continue;
+      map[msgKey(f.msg)] = f;
+    }
+    return map;
+  }
+
+  /* ---------------- 鸟巢面板：我的投递记录 ---------------- */
+  var nestList = { sort: 'time', q: '' };
+  // 排序方式放在代码里，而不是从按钮的 data-* 属性上读回来——
+  // 属性可以被改坏，代码里的定义不会。
+  var NEST_SORTS = [
+    { key: 'time', id: 'nestSortTime', label: '最新' },
+    { key: 'care', id: 'nestSortCare', label: '最受关心' },
+    { key: 'old', id: 'nestSortOld', label: '最早' }
+  ];
+
+  /* =========================================================
      9. 投递
      ========================================================= */
+
+  function matchesQuery(m, q) {
+    if (!q) return true;
+    return String(m.t).toLowerCase().indexOf(q) >= 0;
+  }
+
+  function renderNest() {
+    var mine = ownMessages();
+    var s = ownSummary();
+    // 搜索词只认输入框这一个来源，避免"状态变量"和"输入框"两份数据打架
+    var qEl = $('nestQuery');
+    if (qEl) nestList.q = qEl.value || '';
+    var q = String(nestList.q).toLowerCase();
+    var shown = mine.filter(function (m) { return matchesQuery(m, q); });
+
+    if (nestList.sort === 'care') {
+      shown.sort(function (a, b) { return totalActs(b) - totalActs(a) || (b.ts || 0) - (a.ts || 0); });
+    } else if (nestList.sort === 'old') {
+      shown.sort(function (a, b) { return (a.ts || 0) - (b.ts || 0); });
+    } else {
+      shown.sort(function (a, b) { return (b.ts || 0) - (a.ts || 0); });
+    }
+
+    // 顶部小结
+    var sum = $('nestSum');
+    if (!mine.length) {
+      sum.innerHTML = '<b>鸟巢还是空的。</b>你还没有投过心事 —— ' +
+        '在下面的输入框里写点什么，它会先飞进树洞，然后在这里留下一份记录。';
+    } else {
+      var parts = [], i;
+      for (i = 0; i < ACT_KEYS.length; i++) {
+        var k = ACT_KEYS[i];
+        if (s.acts[k] > 0) parts.push(ACT_META[k].icon + ' ' + s.acts[k]);
+      }
+      sum.innerHTML =
+        '你投过 <b>' + s.count + '</b> 条心事，一共收到 <b>' + s.total + '</b> 次安慰。' +
+        (parts.length ? '<br /><span class="nest-split">' + parts.join('　') + '</span>' : '') +
+        '<br /><span class="nest-fly">此刻有 <b id="nestFlying">' + Object.keys(flyingMine()).length +
+        '</b> 条正在夜空里飞，等一个陌生人点开。</span>';
+    }
+
+    // 计数与筛选条
+    $('nestCount').textContent = mine.length
+      ? ('共 ' + mine.length + ' 条' + (q ? '，匹配 ' + shown.length + ' 条' : ''))
+      : '';
+
+    var list = $('nestList');
+    list.innerHTML = '';
+    if (mine.length && !shown.length) {
+      var empty = document.createElement('p');
+      empty.className = 'nest-empty';
+      empty.textContent = '没有找到含「' + nestList.q + '」的心事。';
+      list.appendChild(empty);
+      return;
+    }
+
+    var flying = flyingMine();
+    for (i = 0; i < shown.length; i++) {
+      (function (m) {
+        var a = actsOf(m);
+        var key = msgKey(m);
+        var got = totalActs(m);
+        var f = flying[key];
+
+        var card = document.createElement('div');
+        card.className = 'nest-item' + (f ? ' is-flying' : '');
+        card.setAttribute('data-key', key);
+
+        var head = document.createElement('div');
+        head.className = 'nest-head';
+        var when = document.createElement('span');
+        when.className = 'nest-when';
+        when.textContent = agoText(m.ts);
+        head.appendChild(when);
+
+        var acts = document.createElement('span');
+        acts.className = 'nest-acts';
+        var bits = [];
+        for (var k2 = 0; k2 < ACT_KEYS.length; k2++) {
+          var kk = ACT_KEYS[k2];
+          if (a[kk] > 0) bits.push(ACT_META[kk].icon + ' ' + a[kk]);
+        }
+        acts.textContent = bits.length ? bits.join('　') : '还没被安慰过';
+        head.appendChild(acts);
+        card.appendChild(head);
+
+        var body = document.createElement('p');
+        body.className = 'nest-text';
+        body.textContent = m.t;
+        card.appendChild(body);
+
+        var foot = document.createElement('div');
+        foot.className = 'nest-foot';
+        var status = document.createElement('span');
+        status.className = 'nest-status';
+        status.textContent = f ? '此刻正在夜空里飞' : '暂时回到树洞里歇着';
+        foot.appendChild(status);
+
+        var btn = document.createElement('button');
+        btn.className = 'nest-find';
+        btn.type = 'button';
+        btn.textContent = f ? '去看看它' : '叫它出来';
+        btn.disabled = false;
+        btn.addEventListener('click', function () {
+          if (f) locateFly(f); else locateOwnMessage(m);
+        });
+        foot.appendChild(btn);
+        card.appendChild(foot);
+
+        list.appendChild(card);
+      })(shown[i]);
+    }
+
+    if (!mine.length) {
+      var hint = document.createElement('p');
+      hint.className = 'nest-empty';
+      hint.textContent = '投出去的心事会在这里留下记录，你随时可以回来看看它被关心了多少次。';
+      list.appendChild(hint);
+    }
+  }
+
+  /* 找到那条心事对应的萤火虫：拉近、标出来、停一会儿 */
+  /* 找到某条心事此刻在空中的那一只（多个实例时取第一个） */
+  function findFlyFor(m) {
+    if (!m) return null;
+    var k = msgKey(m), i;
+    for (i = 0; i < flies.length; i++) {
+      var f = flies[i];
+      if (f.dead || !f.msg) continue;
+      if (msgKey(f.msg) === k && f.state !== 'absorb') return f;
+    }
+    return null;
+  }
+
+  function locateFly(f) {
+    if (!f || f.dead) return false;
+    closeNest();
+    f.spotlight = 6.5;
+    f.wanderTarget = { x: clamp(f.x, WANDER.minX, WANDER.maxX), y: clamp(f.y, WANDER.minY, WANDER.maxY) };
+    f.reTarget = 8;
+    f.heartbeat = Math.max(f.heartbeat, 1.6);
+    ripple(f.x, f.y, 1.4);
+    toast('就是这一只。它身上带着你写下的那条心事。');
+    return true;
+  }
+
+  /* 从鸟巢的记录跳过去：优先跳正在飞的，没有飞的就等它回到空中 */
+  function locateOwnMessage(m) {
+    var f = findFlyFor(m);
+    if (f) return locateFly(f);
+    closeNest();
+    // 它可能正待在树洞里歇着：把这条心事往前排，让它尽快回到夜空
+    m.priority = 1;
+    m._flying = false;
+    m.lastShown = 0;
+    replyTimer = 0;
+    toast('它这会儿还在树洞里歇着 —— 已经帮你叫醒它了，马上就会飞出来。');
+    return true;
+  }
+
+  function openNest() {
+    closeSheet();
+    // 保留上次的搜索词与排序：用户回来通常是想接着看，不是想重新输一遍
+    var q = $('nestQuery');
+    if (q) { q.value = nestList.q || ''; }
+    syncSortButtons();
+    $('nestSheet').classList.add('open');
+    $('nestSheet').setAttribute('aria-hidden', 'false');
+    renderNest();
+  }
+
+  function closeNest() {
+    $('nestSheet').classList.remove('open');
+    $('nestSheet').setAttribute('aria-hidden', 'true');
+  }
+
+  function bindNest() {
+    var q = $('nestQuery');
+    if (q) q.addEventListener('input', function () { renderNest(); });
+    NEST_SORTS.forEach(function (opt) {
+      var b = $(opt.id);
+      if (!b) return;
+      if (b.getAttribute('data-sort') !== opt.key) b.setAttribute('data-sort', opt.key);
+      b.addEventListener('click', function () {
+        nestList.sort = opt.key;
+        syncSortButtons();
+        renderNest();
+      });
+    });
+    var close = $('nestClose');
+    if (close) close.addEventListener('click', closeNest);
+  }
+
+  /* 三个排序按钮里，只让当前生效的那个亮着 */
+  function syncSortButtons() {
+    NEST_SORTS.forEach(function (opt) {
+      var el = $(opt.id);
+      if (el) el.classList.toggle('on', opt.key === nestList.sort);
+    });
+  }
+
+
   function submit() {
     var el = $('input');
     var text = el.value.trim();
     if (!text) return;
-    var msg = { t: text, ts: Date.now(), hugs: 0, self: 1, priority: 1 };
+    var msg = { t: text, ts: Date.now(), hugs: 0, acts: emptyActs(), self: 1, priority: 1,
+                n: Math.random().toString(36).slice(2, 8) };
     history.push(msg);
     queue.push(msg);
+    dedupeHistory();
 
     // 从输入框的位置，升起一只新的萤火虫
     var r = el.getBoundingClientRect();
@@ -2268,6 +2983,9 @@
     ripple(sx, f.y, 0.7);
 
     toast('送出去了。它正飞向树洞 —— 一会儿，它会在夜里替别人亮起来。');
+    // 投递后鸟巢就有内容了，按钮亮一下
+    var nb = $('nestBtn');
+    if (nb) nb.classList.add('has-own');
     save();
   }
 
@@ -2306,21 +3024,28 @@
     $('closeBtn').addEventListener('click', closeSheet);
 
     cv.addEventListener('pointermove', function (e) {
-      var f = pickFly(e.clientX, e.clientY);
+      var overNest = pickNest(e.clientX, e.clientY);
+      if (overNest !== nest.hot) nest.hot = overNest;
+      var f = overNest ? null : pickFly(e.clientX, e.clientY);
       if (f !== hover) {
         hover = f;
         cv.classList.toggle('pointing', !!f);
       }
+      cv.classList.toggle('pointing', !!f || overNest);
     });
     cv.addEventListener('pointerleave', function () { hover = null; cv.classList.remove('pointing'); });
 
     cv.addEventListener('pointerdown', function (e) {
       var x = e.clientX, y = e.clientY;
-      var f = pickFly(x, y);
-      if (f) { openSheet(f); return; }
-      // 点树洞：冬天会把一枚蛹托起来给你看
+      // 手感优先级：鸟巢 -> 树洞 -> 萤火虫。
+      // 树洞附近的萤火虫很密，如果让萤火虫优先，想点树洞时会被它们截走。
+      if (pickNest(x, y)) { openNest(); return; }
       var dxn = (x - hollow.x) / (hollow.rx * 2.6), dyn = (y - hollow.y) / (hollow.ry * 2.6);
-      if (dxn * dxn + dyn * dyn < 1) {
+      var onHollow = dxn * dxn + dyn * dyn < 1;
+      var f = onHollow ? null : pickFly(x, y);
+      if (f) { openSheet(f); return; }
+      if (onHollow) {
+        // 冬天：树洞会把一枚蛹托起来给你看
         if (seasonKey === 'winter') {
           if (revealPupa()) {
             ripple(hollow.x, hollow.y, 1.1);
@@ -2354,6 +3079,11 @@
       var i = cycle.indexOf(weather);
       setWeather(cycle[(i + 1) % cycle.length]);
     });
+    $('nestBtn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      openNest();
+    });
+    bindNest();
     document.addEventListener('pointerdown', function (e) {
       var hc = $('helpCard');
       if (hc.classList.contains('show') && !hc.contains(e.target) && e.target !== $('helpBtn')) {
@@ -2362,7 +3092,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { closeSheet(); $('helpCard').classList.remove('show'); }
+      if (e.key === 'Escape') { closeSheet(); closeNest(); $('helpCard').classList.remove('show'); }
     });
 
     document.addEventListener('visibilitychange', function () {
@@ -2385,6 +3115,7 @@
 
     groundY = Math.round(H * 0.885);
     buildTree();
+    placeNest();
     buildStars();
     layoutZones();
     TARGET_FLIES = W < 620 ? 13 : 18;
@@ -2428,6 +3159,7 @@
     drawSnowBack();
     drawRainBack();
     drawTree();
+    drawNest();
     if (seasonKey === 'winter') drawSnowOnBranches();
     drawCanopy();
     drawLeaves();
@@ -2455,6 +3187,11 @@
       particles: particles,
       submit: submit,
       leaves: leaves,
+      actsOf: actsOf,
+      totalActs: totalActs,
+      emptyActs: emptyActs,
+      actKeys: ACT_KEYS,
+      stats: stats,
       seasonInfo: function () {
         return { key: seasonKey, name: season.name, leaves: leaves.length, leafColor: season.leafColors[0] || null, body: season.body };
       },
@@ -2464,13 +3201,22 @@
           hollow: { x: hollow.x, y: hollow.y, rx: hollow.rx, ry: hollow.ry },
           tree: (tree ? { branches: tree.branches.length, verts: tree.branches.reduce(function (a, b) { return a + b.pts.length * 2; }, 0) } : null),
           flies: flies.map(function (f) {
-            return { x: +f.x.toFixed(1), y: +f.y.toFixed(1), state: f.state, opacity: +f.opacity.toFixed(2), hugs: (f.msg && f.msg.hugs) || 0, text: f.msg && f.msg.t };
+            return {
+              x: +f.x.toFixed(1), y: +f.y.toFixed(1), state: f.state,
+              opacity: +f.opacity.toFixed(2),
+              hugs: (f.msg && f.msg.hugs) || 0,
+              acts: f.msg ? actsOf(f.msg) : null,
+              spotlight: +(f.spotlight || 0).toFixed(2),
+              text: f.msg && f.msg.t
+            };
           }),
           history: history.length,
           queue: queue.length,
           stats: stats,
           open: openFly ? openFly.msg.t : null,
           hugLabel: $('hugCount').textContent,
+          actCounts: openFly && openFly.msg ? actsOf(openFly.msg) : null,
+          historyActs: history.length ? totalActs(history[0]) : 0,
           flyCount: $('flyCount').textContent
         };
       },
@@ -2483,6 +3229,76 @@
         absorbTimer = 2.2; replyTimer = 5.5;
       },
       resize: function () { resize(); },
+      ownMessages: ownMessages,
+      ownSummary: ownSummary,
+      historyKeys: function () {
+        var seen = {}, dup = 0, i, keys = [];
+        for (i = 0; i < history.length; i++) {
+          var k = msgKey(history[i]);
+          keys.push(k);
+          if (seen[k]) dup++; else seen[k] = 1;
+        }
+        return { total: history.length, keys: keys, dup: dup, own: ownMessages().length };
+      },
+      openNest: openNest,
+      closeNest: closeNest,
+      renderNest: renderNest,
+      nestState: function () {
+        return {
+          has: nest.has, x: nest.x, y: nest.y, rx: nest.rx, ry: nest.ry,
+          own: ownMessages().length,
+          summary: ownSummary(),
+          flying: Object.keys(flyingMine()).length,
+          sort: nestList.sort, q: nestList.q
+        };
+      },
+      nestPanel: function () {
+        var list = $('nestList');
+        var cards = [], i;
+        // 按真实的 class 名挑出心事卡片，空状态提示之类的不会被算进来
+        for (i = 0; i < list.children.length; i++) {
+          var c = list.children[i];
+          if ((' ' + (c.className || '') + ' ').indexOf(' nest-item ') >= 0) cards.push(c);
+        }
+        return {
+          open: $('nestSheet').classList.contains('open'),
+          sum: $('nestSum').textContent || $('nestSum').innerHTML,
+          count: $('nestCount').textContent,
+          items: cards.map(function (c) {
+            var text = '', acts = '', find = null, j, k;
+            for (j = 0; j < c.children.length; j++) {
+              var ch = c.children[j];
+              var cn = ch.className || '';
+              if ((' ' + cn + ' ').indexOf(' nest-text ') >= 0) text = ch.textContent;
+              if ((' ' + cn + ' ').indexOf(' nest-head ') >= 0) {
+                for (k = 0; k < ch.children.length; k++) {
+                  if ((' ' + (ch.children[k].className || '') + ' ').indexOf(' nest-acts ') >= 0) {
+                    acts = ch.children[k].textContent;
+                  }
+                }
+              }
+              if ((' ' + cn + ' ').indexOf(' nest-foot ') >= 0) {
+                for (k = 0; k < ch.children.length; k++) {
+                  if ((' ' + (ch.children[k].className || '') + ' ').indexOf(' nest-find ') >= 0) {
+                    find = { disabled: !!ch.children[k].disabled, label: ch.children[k].textContent };
+                  }
+                }
+              }
+            }
+            return {
+              key: c.getAttribute('data-key'),
+              flying: (' ' + (c.className || '') + ' ').indexOf(' is-flying ') >= 0,
+              text: text, acts: acts, find: find
+            };
+          })
+        };
+      },
+      locateOwn: function (index) {
+        var mine = ownMessages();
+        if (!mine.length) return false;
+        var m = mine[clamp(index || 0, 0, mine.length - 1)];
+        return locateOwnMessage(m);
+      },
       zones: function () { return { minX: WANDER.minX, maxX: WANDER.maxX, minY: WANDER.minY, maxY: WANDER.maxY }; },
       wind: function () {
         var maxD = 0, sum = 0, n = 0, i, j;
